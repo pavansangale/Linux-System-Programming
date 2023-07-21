@@ -15,6 +15,7 @@ Commands            : 1] Compile - gcc FileSystem5.c  -o FileSystem5   2] Execut
 #include<stdlib.h>
 #include<dirent.h>
 #include<sys/stat.h>
+#include<string.h>
 
 
 int main(int argc, char *argv[])
@@ -24,7 +25,7 @@ int main(int argc, char *argv[])
     struct dirent *entry = NULL;
     struct stat sobj;
     int i = 1;
-    char *fname = NULL;
+    char fname[20];
     long int iMax = 0;
 
     if(argc != 2)
@@ -44,19 +45,19 @@ int main(int argc, char *argv[])
     while((entry = readdir(dp)) != NULL)
     {
         stat(entry->d_name,&sobj);
-        if(sobj.st_size > iMax)
+        printf("%s | %ld\n",entry->d_name,sobj.st_size);
+
+        if(S_ISREG(sobj.st_mode))
         {
-            iMax = sobj.st_size;
-        }       
+            if(iMax < sobj.st_size)
+            {
+                iMax = sobj.st_size;
+                strcpy(fname,entry->d_name);            
+            }       
+        }
     }
-    while((entry = readdir(dp)) != NULL)
-    {
-        stat(entry->d_name,&sobj);
-        if(iMax == sobj.st_size)
-        {
-            printf("Largest File is %s with size %ld\n",entry->d_name,iMax);
-        }       
-    }
+
+    printf("Largest File Name : %s with size %ld\n",fname,iMax);
     closedir(dp);
 
     return 0;
